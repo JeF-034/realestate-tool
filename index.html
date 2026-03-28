@@ -3,148 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產行情單產生器</title>
+<title>不動產行情單產生器 Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans TC',sans-serif;background:#f0ece4;min-height:100vh;}
+body{font-family:'Noto Sans TC',sans-serif;background:#eae6df;min-height:100vh;}
 
-/* ── Layout ── */
-.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh;}
-@media(max-width:700px){.app{grid-template-columns:1fr;}}
+.app{display:grid;grid-template-columns:285px 1fr;min-height:100vh;}
+@media(max-width:720px){.app{grid-template-columns:1fr;}}
 
 /* ── Sidebar ── */
-.sb{background:#fff;border-right:1px solid #e8e0d0;padding:16px 14px;overflow-y:auto;}
-.logo{font-family:'Noto Serif TC',serif;font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e8e0d0;}
-.logo span{color:#534AB7;}
-.ss{font-size:9.5px;letter-spacing:.14em;color:#a09888;text-transform:uppercase;margin:14px 0 7px;padding-bottom:4px;border-bottom:0.5px solid #e8e0d0;}
-.ss:first-of-type{margin-top:0;}
-label{display:block;font-size:11.5px;color:#6a6058;margin-bottom:3px;margin-top:8px;}
+.sb{background:#fff;border-right:1px solid #ddd5c5;padding:16px 14px;overflow-y:auto;}
+.logo{font-family:'Noto Serif TC',serif;font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ede8e0;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:#534AB7;}
+.ss{font-size:9px;letter-spacing:.15em;color:#b0a898;text-transform:uppercase;margin:13px 0 6px;padding-bottom:4px;border-bottom:0.5px solid #ede8e0;}
+label{display:block;font-size:11px;color:#6a6058;margin-bottom:2px;margin-top:7px;}
 label:first-of-type{margin-top:0;}
-input[type=text],textarea{width:100%;font-size:12px;padding:6px 9px;border-radius:6px;border:1px solid #ddd5c5;background:#fdfaf5;color:#2a2520;font-family:'Noto Sans TC',sans-serif;resize:none;outline:none;}
+input[type=text],textarea{width:100%;font-size:11.5px;padding:5px 8px;border-radius:6px;border:1px solid #ddd5c5;background:#fdfaf5;color:#2a2520;font-family:'Noto Sans TC',sans-serif;resize:none;outline:none;transition:border-color .15s;}
 input[type=text]:focus,textarea:focus{border-color:#AFA9EC;}
-textarea{height:55px;line-height:1.5;}
+textarea{height:52px;line-height:1.5;}
 
-/* AI Box */
-.ai-box{background:#EEEDFE;border:1px solid #AFA9EC;border-radius:10px;padding:12px;margin-bottom:8px;}
-.ai-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
-.ai-badge{background:#534AB7;color:#fff;font-size:10px;padding:2px 9px;border-radius:8px;font-weight:500;}
-.ai-sub{font-size:11px;color:#534AB7;}
-.ai-row{display:flex;gap:6px;}
-.ai-input{flex:1;font-size:12px;padding:7px 10px;border-radius:7px;border:1px solid #AFA9EC;background:#fff;color:#2a2520;font-family:'Noto Sans TC',sans-serif;outline:none;}
-.ai-btn{padding:7px 14px;border-radius:7px;border:none;background:#534AB7;color:#fff;font-size:12.5px;font-weight:500;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .15s;}
-.ai-btn:hover{opacity:.85;}
+.ai-box{background:linear-gradient(135deg,#EEEDFE,#f0eeff);border:1px solid #AFA9EC;border-radius:10px;padding:12px;margin-bottom:8px;}
+.ai-head{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.ai-badge{background:#534AB7;color:#fff;font-size:10px;padding:2px 9px;border-radius:8px;font-weight:500;letter-spacing:.03em;}
+.ai-sub{font-size:11px;color:#7F77DD;}
+.ai-row{display:flex;gap:5px;}
+.ai-input{flex:1;font-size:11.5px;padding:6px 9px;border-radius:7px;border:1px solid #AFA9EC;background:#fff;color:#2a2520;font-family:'Noto Sans TC',sans-serif;outline:none;}
+.ai-btn{padding:6px 12px;border-radius:7px;border:none;background:#534AB7;color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;white-space:nowrap;}
+.ai-btn:hover{background:#3C3489;}
 .ai-btn:disabled{opacity:.5;cursor:not-allowed;}
-.ai-status{font-size:11px;color:#7F77DD;margin-top:7px;min-height:15px;display:flex;align-items:center;gap:5px;}
-.spinner{width:11px;height:11px;border:2px solid #AFA9EC;border-top-color:#534AB7;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0;}
+.ai-status{font-size:10.5px;color:#7F77DD;margin-top:6px;min-height:14px;display:flex;align-items:center;gap:5px;}
+.spinner{width:10px;height:10px;border:1.5px solid #AFA9EC;border-top-color:#534AB7;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0;}
 .spinner.on{display:block;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* Swatches */
-.swatches{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;}
-.sw{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .15s;}
-.sw.on{border-color:#2a2520;}
+.swatches{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.sw{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;}
+.sw.on{border-color:#2a2520;transform:scale(1.1);}
 
-/* Rows */
-.rt{width:100%;border-collapse:collapse;font-size:11px;}
-.rt th{color:#a09888;font-weight:400;padding:2px 2px 5px;text-align:left;}
+.rt{width:100%;border-collapse:collapse;font-size:10.5px;}
+.rt th{color:#b0a898;font-weight:400;padding:2px 2px 4px;text-align:left;}
 .rt td{padding:2px;}
-.rt input{font-size:11px;padding:4px 5px;width:100%;border-radius:5px;border:1px solid #ddd5c5;background:#fdfaf5;color:#2a2520;outline:none;}
-.add-btn,.del-btn{font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid #ddd5c5;background:#fdfaf5;color:#6a6058;cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
-.del-btn{padding:3px 6px;color:#a09888;}
+.rt input{font-size:10.5px;padding:3px 5px;width:100%;border-radius:4px;border:1px solid #ddd5c5;background:#fdfaf5;color:#2a2520;outline:none;}
+.add-btn,.del-btn{font-size:10.5px;padding:3px 8px;border-radius:5px;border:1px solid #ddd5c5;background:#fdfaf5;color:#6a6058;cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
+.del-btn{padding:2px 5px;color:#b0a898;}
 
-/* Actions */
-.act{display:flex;flex-direction:column;gap:7px;margin-top:16px;}
-.btn-g{padding:10px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .15s;}
-.btn-g:active{opacity:.8;}
-.btn-line{background:#00b900;color:#fff;}
-.btn-copy{background:#fff;border:1px solid #ddd5c5 !important;border:none;color:#2a2520;display:none;}
+.act{display:flex;flex-direction:column;gap:6px;margin-top:14px;}
+.btn-pdf{padding:10px;border-radius:8px;font-size:12.5px;font-weight:500;border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;background:#1a1a1a;color:#fff;transition:opacity .15s;}
+.btn-pdf:hover{opacity:.85;}
+.btn-line{padding:10px;border-radius:8px;font-size:12.5px;font-weight:500;border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;background:#00b900;color:#fff;}
+.btn-copy{padding:8px;border-radius:7px;font-size:12px;border:1px solid #ddd5c5;background:#fdfaf5;color:#2a2520;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:none;}
 .btn-copy.show{display:block;}
 
 /* ── Preview ── */
-.pv{padding:24px 20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.pv{padding:20px 18px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
 .pv-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.pv-note{font-size:12px;color:#8a7e6e;background:#fff;padding:5px 12px;border-radius:20px;border:1px solid #e8e0d0;}
+.pv-note{font-size:11px;color:#8a7e6e;background:#fff;padding:4px 12px;border-radius:20px;border:1px solid #ddd5c5;}
 
 /* ── Card ── */
-.card{overflow:hidden;border-radius:8px;max-width:400px;box-shadow:0 2px 20px rgba(0,0,0,0.12);}
-.ch{padding:22px 22px 19px;position:relative;overflow:hidden;}
-.ch::after{content:'';position:absolute;bottom:-35px;right:-35px;width:130px;height:130px;border-radius:50%;border:24px solid rgba(255,255,255,0.07);}
-.h-sup{font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px;opacity:.65;}
-.h-nm{font-family:'Noto Serif TC',serif;font-size:21px;font-weight:700;line-height:1.3;margin-bottom:4px;}
-.h-ad{font-size:10.5px;opacity:.6;margin-bottom:11px;}
-.h-pills{display:flex;gap:6px;flex-wrap:wrap;}
-.hp{font-size:10px;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,0.13);color:rgba(255,255,255,.85);}
-.hp.g{background:rgba(220,185,60,.24);color:rgba(240,215,110,.95);}
+#report-card{overflow:hidden;border-radius:10px;max-width:420px;box-shadow:0 4px 30px rgba(0,0,0,0.15);font-family:'Noto Sans TC',sans-serif;}
 
-.cb{padding:16px 20px 18px;background:#f8f5f0;}
-.st{font-size:9.5px;letter-spacing:.12em;color:#8a7e6e;text-transform:uppercase;margin-bottom:9px;padding-bottom:5px;border-bottom:0.5px solid #ddd5c5;margin-top:14px;}
-.st:first-child{margin-top:0;}
+/* Header */
+.rh{padding:0;position:relative;overflow:hidden;}
+.rh-top{padding:22px 24px 16px;}
+.rh-deco{position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;border:35px solid rgba(255,255,255,0.06);}
+.rh-deco2{position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;border-radius:50%;border:20px solid rgba(255,255,255,0.04);}
+.rh-sup{font-size:9px;letter-spacing:.18em;text-transform:uppercase;opacity:.6;margin-bottom:6px;}
+.rh-name{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;line-height:1.25;margin-bottom:4px;}
+.rh-addr{font-size:10px;opacity:.55;margin-bottom:14px;line-height:1.5;}
+.rh-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.rhp{font-size:9.5px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,.85);}
+.rhp.gold{background:rgba(220,185,60,.25);color:rgba(245,215,100,.95);}
+.rhp.green{background:rgba(60,180,100,.2);color:rgba(140,230,160,.95);}
 
-.sr{display:flex;gap:7px;margin-bottom:4px;}
-.sc{flex:1;border-radius:7px;padding:10px 11px;}
-.sc-l{font-size:9.5px;margin-bottom:2px;}
-.sc-v{font-family:'Noto Serif TC',serif;font-size:17px;font-weight:600;}
-.sc-u{font-size:9.5px;margin-left:1px;}
+/* Stats bar */
+.rh-stats{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,0.1);}
+.rhs{padding:12px 14px;position:relative;}
+.rhs:not(:last-child)::after{content:'';position:absolute;right:0;top:20%;height:60%;width:1px;background:rgba(255,255,255,0.12);}
+.rhs-l{font-size:9px;opacity:.55;margin-bottom:3px;letter-spacing:.03em;}
+.rhs-v{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:600;}
+.rhs-u{font-size:9px;margin-left:1px;opacity:.7;}
+.rhs-s{font-size:9px;margin-top:2px;opacity:.7;}
 
-.tg{display:grid;grid-template-columns:1fr 52px 64px 70px;gap:2px;padding:8px 0;border-bottom:0.5px solid #e8e0d0;align-items:center;}
-.tg.hdr{font-size:9.5px;color:#9a9080;padding-bottom:5px;border-bottom:1px solid #cfc8ba;padding-top:0;}
-.tf{font-size:12.5px;color:#2a2520;font-weight:500;}
-.tsb{font-size:9.5px;color:#8a7e6e;margin-top:1px;}
-.ts2{font-size:11.5px;color:#6a6058;text-align:center;}
-.tu{font-size:12px;font-weight:500;text-align:right;}
-.tt{font-size:12px;color:#2a2520;text-align:right;}
-.hi .tu{color:#b85030;}
-.hi .tf::after{content:'↑';font-size:9px;color:#b85030;margin-left:3px;}
+/* Body */
+.rb{padding:18px 20px 20px;background:#f8f5f0;}
+.rst{font-size:9px;letter-spacing:.13em;color:#9a8e7e;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid #e0d8cc;margin-top:14px;display:flex;align-items:center;gap:6px;}
+.rst:first-child{margin-top:0;}
+.rst-line{flex:1;height:0.5px;background:#e0d8cc;}
+
+/* Table */
+.tg{display:grid;grid-template-columns:1fr 48px 60px 68px;gap:2px;padding:8px 0;border-bottom:0.5px solid #ede5d8;align-items:start;}
+.tg.hdr{font-size:9px;color:#a09080;padding-bottom:5px;border-bottom:1px solid #d5ccbe;padding-top:0;align-items:center;}
+.tf{font-size:12px;color:#2a2520;font-weight:500;line-height:1.3;}
+.tdate{font-size:9px;color:#a09080;margin-top:2px;}
+.ts2{font-size:11px;color:#6a6058;text-align:center;}
+.tu{font-size:11.5px;font-weight:500;text-align:right;}
+.tt{font-size:11px;color:#2a2520;text-align:right;}
+.hi .tu{color:#c04828;}
+.hi .tf::before{content:'▲ ';font-size:8px;color:#c04828;}
 .ok .tu{color:#185fa5;}
 .rl{border-bottom:none;}
 
-.tbw{margin-bottom:7px;}
-.tbm{display:flex;justify-content:space-between;margin-bottom:3px;}
-.tbn{font-size:12px;color:#4a4038;}
-.tbv{font-size:12px;font-weight:500;color:#2a2520;}
-.tbt{height:5px;background:#e0d8cc;border-radius:3px;}
-.tbf{height:100%;border-radius:3px;}
+/* Trend */
+.tbw{margin-bottom:6px;}
+.tbm{display:flex;justify-content:space-between;margin-bottom:3px;align-items:center;}
+.tbn{font-size:11px;color:#4a4038;}
+.tbv{font-size:11px;font-weight:500;color:#2a2520;}
+.tbt{height:4px;background:#e0d8cc;border-radius:2px;overflow:hidden;}
+.tbf{height:100%;border-radius:2px;transition:width .6s ease;}
 
-.abox{border-radius:8px;padding:13px 15px;margin-top:3px;}
-.at{font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;opacity:.55;}
-.ai2{display:flex;gap:7px;margin-bottom:7px;align-items:flex-start;}
+/* Analysis */
+.abox{border-radius:8px;padding:14px 15px;margin-top:3px;}
+.at{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;opacity:.5;}
+.ai2{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
 .ai2:last-child{margin-bottom:0;}
 .adot{width:5px;height:5px;border-radius:50%;margin-top:5px;flex-shrink:0;}
-.atxt{font-size:12px;line-height:1.7;}
+.atxt{font-size:11.5px;line-height:1.75;}
 
-.aft{margin-top:14px;padding-top:12px;border-top:0.5px solid #ddd5c5;display:flex;align-items:center;gap:10px;}
-.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;font-family:'Noto Serif TC',serif;flex-shrink:0;}
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:3px;}
+.ic{background:#fff;border:0.5px solid #e0d8cc;border-radius:7px;padding:9px 11px;}
+.ic-l{font-size:9px;color:#a09080;margin-bottom:2px;}
+.ic-v{font-size:12.5px;font-weight:500;color:#2a2520;}
+
+/* Agent + QR */
+.aft{margin-top:16px;padding-top:13px;border-top:0.5px solid #e0d8cc;display:flex;align-items:center;gap:11px;}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;font-family:'Noto Serif TC',serif;flex-shrink:0;}
+.ainfo{flex:1;}
 .an{font-size:13px;font-weight:500;color:#2a2520;}
-.ar{font-size:11px;color:#8a7e6e;margin-top:1px;}
-.al{font-size:11px;font-weight:500;padding:4px 10px;border-radius:10px;}
-.disc{font-size:9.5px;color:#a09888;margin-top:9px;line-height:1.6;}
+.ar{font-size:10px;color:#8a7e6e;margin-top:1px;}
+.qr-wrap{flex-shrink:0;text-align:center;}
+.qr-wrap canvas,.qr-wrap img{width:52px!important;height:52px!important;border-radius:4px;}
+.qr-label{font-size:8.5px;color:#a09080;margin-top:3px;text-align:center;}
+
+.disc{font-size:9px;color:#b0a898;margin-top:10px;line-height:1.6;padding-top:10px;border-top:0.5px solid #ede8e0;}
 
 /* LINE output */
-.lo{background:#fff;border:1px solid #e8e0d0;border-radius:10px;padding:14px;font-size:13px;color:#2a2520;line-height:1.85;white-space:pre-wrap;font-family:'Noto Sans TC',sans-serif;display:none;max-width:400px;}
+.lo{background:#fff;border:1px solid #ddd5c5;border-radius:10px;padding:14px;font-size:12.5px;color:#2a2520;line-height:1.85;white-space:pre-wrap;font-family:'Noto Sans TC',sans-serif;display:none;max-width:420px;}
 .lo.show{display:block;}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- ── SIDEBAR ── -->
+<!-- SIDEBAR -->
 <div class="sb">
-  <div class="logo">行情單<span>產生器</span></div>
+  <div class="logo"><div class="logo-dot"></div>行情單產生器 Pro</div>
 
   <div class="ai-box">
     <div class="ai-head">
-      <span class="ai-badge">AI 搜尋</span>
-      <span class="ai-sub">輸入社區自動填入</span>
+      <span class="ai-badge">AI 智能搜尋</span>
+      <span class="ai-sub">自動填入所有資料</span>
     </div>
     <div class="ai-row">
-      <input class="ai-input" id="ai-q" placeholder="例：銀河水都 永和區">
+      <input class="ai-input" id="ai-q" placeholder="輸入社區名稱或地址">
       <button class="ai-btn" id="ai-btn" onclick="aiSearch()">搜尋</button>
     </div>
     <div class="ai-status">
       <div class="spinner" id="sp"></div>
-      <span id="ai-msg">輸入社區名稱，AI 自動填入所有欄位</span>
+      <span id="ai-msg">輸入後按搜尋，約 15–25 秒完成</span>
     </div>
   </div>
 
@@ -152,56 +173,61 @@ textarea{height:55px;line-height:1.5;}
   <label>姓名</label><input type="text" id="a-name" value="王小明" oninput="render()">
   <label>職稱</label><input type="text" id="a-role" value="不動產經理人" oninput="render()">
   <label>公司</label><input type="text" id="a-co" value="XX不動產 永和服務中心" oninput="render()">
-  <label>LINE ID</label><input type="text" id="a-line" value="wang0912" oninput="render()">
+  <label>LINE ID（用於QR Code）</label><input type="text" id="a-line" value="wang0912" oninput="render();genQR()">
 
   <div class="ss">社區資料</div>
-  <label>社區名稱</label><input type="text" id="c-nm" value="請先用AI搜尋社區" oninput="render()">
+  <label>社區名稱</label><input type="text" id="c-nm" value="請先用AI搜尋" oninput="render()">
   <label>地址</label><input type="text" id="c-ad" value="" oninput="render()">
   <label>總戶數</label><input type="text" id="c-ut" value="" oninput="render()">
   <label>屋齡</label><input type="text" id="c-ag" value="" oninput="render()">
+  <label>總樓層</label><input type="text" id="c-fl" value="" oninput="render()">
+  <label>建設公司</label><input type="text" id="c-bd" value="" oninput="render()">
+  <label>鄰近捷運</label><input type="text" id="c-mr" value="" oninput="render()">
   <label>近一年均價（萬/坪）</label><input type="text" id="c-av" value="" oninput="render()">
   <label>近一筆成交（萬/坪）</label><input type="text" id="c-ls" value="" oninput="render()">
+  <label>歷史最高（萬/坪）</label><input type="text" id="c-hi" value="" oninput="render()">
   <label>議價空間（%）</label><input type="text" id="c-ng" value="" oninput="render()">
   <label>市場分析</label>
   <textarea id="c-an" oninput="render()"></textarea>
 
   <div class="ss">成交明細（最多5筆）</div>
   <table class="rt">
-    <tr><th>說明</th><th>坪</th><th>萬/坪</th><th>總價萬</th><th></th></tr>
+    <tr><th>說明</th><th>坪</th><th>萬/坪</th><th>總價</th><th></th></tr>
     <tbody id="rb"></tbody>
   </table>
-  <button class="add-btn" onclick="addRow()" style="margin-top:6px">＋ 新增</button>
+  <button class="add-btn" onclick="addRow()" style="margin-top:5px">＋ 新增</button>
 
   <div class="ss">配色主題</div>
   <div class="swatches" id="swatches"></div>
 
   <div class="act">
-    <button class="btn-g btn-line" onclick="genLine()">產出 LINE 文字版本</button>
-    <button class="btn-g btn-copy" id="copy-btn" onclick="copyLine()">複製 LINE 訊息</button>
+    <button class="btn-pdf" onclick="exportPDF()">⬇ 儲存為 PDF</button>
+    <button class="btn-line" onclick="genLine()">產出 LINE 文字版本</button>
+    <button class="btn-copy" id="copy-btn" onclick="copyLine()">複製 LINE 訊息</button>
   </div>
 </div>
 
-<!-- ── PREVIEW ── -->
+<!-- PREVIEW -->
 <div class="pv">
   <div class="pv-bar">
-    <span class="pv-note">📱 截圖此區域直接傳 LINE</span>
+    <span class="pv-note">📱 截圖或儲存 PDF 傳給住戶</span>
   </div>
-  <div id="cw"></div>
+  <div id="report-card"></div>
   <div id="lo" class="lo"></div>
 </div>
 
 </div>
 <script>
 const THEMES=[
-  {h:'#0d2137',t:'#e8f2fc',s:'#5a8ab0',bar:'#0d2137',ab:'#0d2137',at:'#a8c4d8',dot:'#d4a830',lc:'#185fa5',lb:'#e4ecf5'},
-  {h:'#1a1a1a',t:'#f5f0e8',s:'#888070',bar:'#1a1a1a',ab:'#1a1a1a',at:'#c0b8a8',dot:'#b85030',lc:'#534AB7',lb:'#EEEDFE'},
-  {h:'#1a0a2e',t:'#f0eafc',s:'#8a6ab0',bar:'#1a0a2e',ab:'#1a0a2e',at:'#b8a8d0',dot:'#c8a030',lc:'#534AB7',lb:'#EEEDFE'},
-  {h:'#0f3d2a',t:'#e8f5ee',s:'#5aaa7e',bar:'#0f3d2a',ab:'#0f3d2a',at:'#a8d0b8',dot:'#d4a030',lc:'#0F6E56',lb:'#E1F5EE'},
-  {h:'#3d0f1a',t:'#f5e8ec',s:'#aa5a70',bar:'#3d0f1a',ab:'#3d0f1a',at:'#d0a8b8',dot:'#d4a030',lc:'#993556',lb:'#FBEAF0'},
+  {h:'#0d2137',s:'#5a8ab0',bar:'#0d2137',ab:'#0d2137',at:'#a8c4d8',dot:'#d4a830',lc:'#185fa5',lb:'#e4ecf5',av:'#0d2137',avt:'#e8f2fc'},
+  {h:'#1a1a1a',s:'#888070',bar:'#1a1a1a',ab:'#1a1a1a',at:'#c0b8a8',dot:'#c04828',lc:'#534AB7',lb:'#EEEDFE',av:'#1a1a1a',avt:'#f5f0e8'},
+  {h:'#1a0a2e',s:'#8a6ab0',bar:'#1a0a2e',ab:'#1a0a2e',at:'#b8a8d0',dot:'#c8a030',lc:'#534AB7',lb:'#EEEDFE',av:'#1a0a2e',avt:'#f0eafc'},
+  {h:'#0f3d2a',s:'#5aaa7e',bar:'#0f3d2a',ab:'#0f3d2a',at:'#a8d0b8',dot:'#d4a030',lc:'#0F6E56',lb:'#E1F5EE',av:'#0f3d2a',avt:'#e8f5ee'},
+  {h:'#2d1a00',s:'#aa8840',bar:'#2d1a00',ab:'#2d1a00',at:'#c8b890',dot:'#4a7c59',lc:'#854F0B',lb:'#FAEEDA',av:'#2d1a00',avt:'#f5ede0'},
 ];
 let theme=0;
 const swEl=document.getElementById('swatches');
-['#0d2137','#1a1a1a','#1a0a2e','#0f3d2a','#3d0f1a'].forEach((c,i)=>{
+['#0d2137','#1a1a1a','#1a0a2e','#0f3d2a','#2d1a00'].forEach((c,i)=>{
   const d=document.createElement('div');
   d.className='sw'+(i===0?' on':'');
   d.style.background=c;
@@ -210,15 +236,15 @@ const swEl=document.getElementById('swatches');
 });
 
 let rows=[];
-function addRow(){if(rows.length>=5)return;rows.push({l:'',s:'',u:'',t:''});buildRows();render();}
+function addRow(){if(rows.length>=5)return;rows.push({l:'',s:'',u:'',t:'',date:''});buildRows();render();}
 function delRow(i){rows.splice(i,1);buildRows();render();}
 function buildRows(){
   document.getElementById('rb').innerHTML=rows.map((r,i)=>`
     <tr>
-      <td><input type="text" value="${r.l}" placeholder="說明" oninput="rows[${i}].l=this.value;render()"></td>
-      <td><input type="text" value="${r.s}" oninput="rows[${i}].s=this.value;render()" style="width:36px"></td>
-      <td><input type="text" value="${r.u}" oninput="rows[${i}].u=this.value;render()" style="width:40px"></td>
-      <td><input type="text" value="${r.t}" oninput="rows[${i}].t=this.value;render()" style="width:50px"></td>
+      <td><input type="text" value="${r.l}" placeholder="棟別樓層格局" oninput="rows[${i}].l=this.value;render()"></td>
+      <td><input type="text" value="${r.s}" oninput="rows[${i}].s=this.value;render()" style="width:34px"></td>
+      <td><input type="text" value="${r.u}" oninput="rows[${i}].u=this.value;render()" style="width:36px"></td>
+      <td><input type="text" value="${r.t}" oninput="rows[${i}].t=this.value;render()" style="width:44px"></td>
       <td><button class="del-btn" onclick="delRow(${i})">✕</button></td>
     </tr>`).join('');
 }
@@ -226,6 +252,23 @@ buildRows();
 
 function g(id){return(document.getElementById(id)||{}).value||'';}
 function set(id,v){const el=document.getElementById(id);if(el)el.value=v;}
+
+let qrGenerated=false;
+function genQR(){
+  const lineId=g('a-line');
+  if(!lineId)return;
+  const qrEl=document.getElementById('qr-code');
+  if(!qrEl)return;
+  qrEl.innerHTML='';
+  try{
+    new QRCode(qrEl,{
+      text:`https://line.me/ti/p/~${lineId}`,
+      width:52,height:52,
+      colorDark:'#1a1a1a',colorLight:'#ffffff',
+      correctLevel:QRCode.CorrectLevel.M
+    });
+  }catch(e){}
+}
 
 async function aiSearch(){
   const q=document.getElementById('ai-q').value.trim();
@@ -236,7 +279,6 @@ async function aiSearch(){
   btn.disabled=true;sp.classList.add('on');
   msg.textContent='AI 搜尋中，約 15–25 秒...';
   try{
-    // 呼叫自己的後端 Proxy（不是直接呼叫 Anthropic）
     const res=await fetch('/api/search',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -246,14 +288,16 @@ async function aiSearch(){
     if(!result.success)throw new Error(result.error);
     const d=result.data;
     set('c-nm',d.name||'');set('c-ad',d.addr||'');set('c-ut',d.units||'');
-    set('c-ag',d.age||'');set('c-av',d.avg||'');set('c-ls',d.last||'');
-    set('c-ng',d.nego||'');set('c-an',d.analysis||'');
+    set('c-ag',d.age||'');set('c-fl',d.floors||'');set('c-bd',d.builder||'');
+    set('c-mr',d.mrt||'');set('c-av',d.avg||'');set('c-ls',d.last||'');
+    set('c-hi',d.high||'');set('c-ng',d.nego||'');set('c-an',d.analysis||'');
     if(d.rows&&d.rows.length){
-      rows=d.rows.slice(0,5).map(r=>({l:r.l||'',s:r.s||'',u:r.u||'',t:r.t||''}));
+      rows=d.rows.slice(0,5).map(r=>({l:r.l||'',s:r.s||'',u:r.u||'',t:r.t||'',date:r.date||''}));
       buildRows();
     }
     render();
-    msg.textContent='✅ 完成！請確認後截圖使用';
+    setTimeout(genQR,300);
+    msg.textContent='✅ 完成！請確認資料後使用';
   }catch(e){
     msg.textContent='⚠️ 搜尋失敗：'+e.message;
   }
@@ -267,8 +311,8 @@ function render(){
   const tY=[
     {y:'2021',v:+(avg*.68).toFixed(1)},
     {y:'2022',v:+(avg*.77).toFixed(1)},
-    {y:'2023',v:+(avg*.85).toFixed(1)},
-    {y:'2024',v:+(avg*.93).toFixed(1)},
+    {y:'2023',v:+(avg*.86).toFixed(1)},
+    {y:'2024',v:+(avg*.94).toFixed(1)},
     {y:'近一年',v:avg,hi:true},
   ];
   const vr=rows.filter(r=>r.l||r.u);
@@ -276,71 +320,138 @@ function render(){
     const isHi=parseFloat(r.u)>=(avg*.97);
     const last=i===vr.length-1;
     return `<div class="tg ${isHi?'hi':'ok'}${last?' rl':''}">
-      <div class="tf">${r.l||'—'}<div class="tsb">${''}</div></div>
+      <div><div class="tf">${r.l||'—'}</div><div class="tdate">${r.date||''}</div></div>
       <div class="ts2">${r.s?r.s+'坪':'—'}</div>
       <div class="tu">${r.u?r.u+'萬':'—'}</div>
       <div class="tt">${r.t?r.t+'萬':'—'}</div>
     </div>`;
   }).join('');
+
   const tH=tY.map(t=>`
     <div class="tbw">
-      <div class="tbm"><span class="tbn">${t.y}年</span><span class="tbv"${t.hi?` style="color:#b85030"`:''}>約${t.v}萬${t.hi?' ↑':''}</span></div>
-      <div class="tbt"><div class="tbf" style="width:${avg>0?Math.min(96,Math.round(t.v/avg*73))+'%':'0%'};background:${t.hi?'#b85030':T.bar}"></div></div>
+      <div class="tbm">
+        <span class="tbn">${t.y}年</span>
+        <span class="tbv"${t.hi?` style="color:#c04828"`:''}>約${t.v}萬${t.hi?' ↑':''}</span>
+      </div>
+      <div class="tbt"><div class="tbf" style="width:${avg>0?Math.min(96,Math.round(t.v/avg*73))+'%':'0%'};background:${t.hi?'#c04828':T.bar}"></div></div>
     </div>`).join('');
 
-  document.getElementById('cw').innerHTML=`
-  <div class="card">
-    <div class="ch" style="background:${T.h}">
-      <div class="h-sup" style="color:${T.s}">社區專屬行情報告｜實價登錄</div>
-      <div class="h-nm" style="color:${T.t}">${g('c-nm')||'社區名稱'}</div>
-      <div class="h-ad" style="color:${T.t}">${g('c-ad')||'地址'}</div>
-      <div class="h-pills">
-        <span class="hp">${g('c-ut')||'—'}</span>
-        <span class="hp">${g('c-ag')||'—'}</span>
-        ${avg?`<span class="hp g">均價 ${avg}萬/坪</span>`:''}
+  const analysisLines=(g('c-an')||'').split('。').filter(s=>s.trim()).slice(0,3);
+  const aH=analysisLines.map((line,i)=>{
+    const dots=['#d4a830','#4a7c59','#5a8ab0'];
+    return `<div class="ai2"><div class="adot" style="background:${dots[i]||dots[0]}"></div><div class="atxt" style="color:${T.at}">${line.trim()}。</div></div>`;
+  }).join('');
+
+  document.getElementById('report-card').innerHTML=`
+  <div style="overflow:hidden;border-radius:10px;box-shadow:0 4px 30px rgba(0,0,0,0.15);">
+    <!-- Header -->
+    <div class="rh" style="background:${T.h}">
+      <div class="rh-top" style="position:relative;">
+        <div class="rh-deco"></div><div class="rh-deco2"></div>
+        <div class="rh-sup" style="color:${T.s}">社區專屬行情報告｜實價登錄</div>
+        <div class="rh-name" style="color:#f8f4ee">${g('c-nm')||'社區名稱'}</div>
+        <div class="rh-addr" style="color:#f8f4ee">${g('c-ad')||'地址'}${g('c-mr')?'<br>'+g('c-mr'):''}</div>
+        <div class="rh-pills">
+          ${g('c-ut')?`<span class="rhp">${g('c-ut')}</span>`:''}
+          ${g('c-ag')?`<span class="rhp">${g('c-ag')}</span>`:''}
+          ${g('c-fl')?`<span class="rhp">${g('c-fl')}</span>`:''}
+          ${avg?`<span class="rhp gold">均價 ${avg}萬/坪</span>`:''}
+          ${g('c-hi')?`<span class="rhp green">歷史高點 ${g('c-hi')}萬</span>`:''}
+        </div>
+      </div>
+      <!-- Stats bar -->
+      <div class="rh-stats" style="background:rgba(0,0,0,0.2)">
+        <div class="rhs">
+          <div class="rhs-l" style="color:${T.s}">近一年均價</div>
+          <div class="rhs-v" style="color:#f8f4ee">${g('c-av')||'—'}<span class="rhs-u" style="color:${T.s}">萬/坪</span></div>
+        </div>
+        <div class="rhs">
+          <div class="rhs-l" style="color:${T.s}">近一筆成交</div>
+          <div class="rhs-v" style="color:#f8f4ee">${g('c-ls')||'—'}<span class="rhs-u" style="color:${T.s}">萬</span></div>
+        </div>
+        <div class="rhs">
+          <div class="rhs-l" style="color:${T.s}">議價空間</div>
+          <div class="rhs-v" style="color:#f8f4ee">${g('c-ng')||'—'}<span class="rhs-u" style="color:${T.s}">%</span></div>
+        </div>
       </div>
     </div>
-    <div class="cb">
-      <div class="sr">
-        <div class="sc" style="background:${T.h}">
-          <div class="sc-l" style="color:${T.s}">近一年均價</div>
-          <div class="sc-v" style="color:${T.t}">${g('c-av')||'—'}<span class="sc-u" style="color:${T.s}">萬/坪</span></div>
-        </div>
-        <div class="sc" style="background:#ede8e0">
-          <div class="sc-l" style="color:#8a7e6e">近一筆成交</div>
-          <div class="sc-v" style="color:#2a2520">${g('c-ls')||'—'}<span class="sc-u" style="color:#9a8e7e">萬</span></div>
-        </div>
-        <div class="sc" style="background:#ede8e0">
-          <div class="sc-l" style="color:#8a7e6e">議價空間</div>
-          <div class="sc-v" style="color:#2a2520">${g('c-ng')||'—'}<span class="sc-u" style="color:#9a8e7e">%</span></div>
-        </div>
-      </div>
-      ${vr.length?`<div class="st">近期成交明細</div>
+
+    <!-- Body -->
+    <div class="rb">
+      ${(g('c-ut')||g('c-bd')||g('c-fl'))?`
+      <div class="rst"><span>社區資料</span><div class="rst-line"></div></div>
+      <div class="info-grid">
+        ${g('c-bd')?`<div class="ic"><div class="ic-l">建設公司</div><div class="ic-v">${g('c-bd')}</div></div>`:''}
+        ${g('c-ut')?`<div class="ic"><div class="ic-l">總戶數</div><div class="ic-v">${g('c-ut')}</div></div>`:''}
+        ${g('c-fl')?`<div class="ic"><div class="ic-l">樓層</div><div class="ic-v">${g('c-fl')}</div></div>`:''}
+        ${g('c-ag')?`<div class="ic"><div class="ic-l">屋齡</div><div class="ic-v">${g('c-ag')}</div></div>`:''}
+      </div>`:''}
+
+      ${vr.length?`
+      <div class="rst"><span>近期成交明細</span><div class="rst-line"></div></div>
       <div class="tg hdr"><div>說明</div><div style="text-align:center">坪</div><div style="text-align:right">單價</div><div style="text-align:right">總價</div></div>
       ${rH}`:''}
-      ${avg?`<div class="st">歷年均價走勢</div>${tH}`:''}
-      ${g('c-an')?`<div class="st">市場分析</div>
+
+      ${avg?`
+      <div class="rst"><span>歷年均價走勢</span><div class="rst-line"></div></div>
+      ${tH}`:''}
+
+      ${g('c-an')?`
+      <div class="rst"><span>市場分析</span><div class="rst-line"></div></div>
       <div class="abox" style="background:${T.ab}">
         <div class="at" style="color:${T.s}">專業觀點</div>
-        <div class="ai2"><div class="adot" style="background:${T.dot}"></div><div class="atxt" style="color:${T.at}">${g('c-an')}</div></div>
+        ${aH}
       </div>`:''}
+
+      <!-- Agent + QR -->
       <div class="aft">
-        <div class="av" style="background:${T.h};color:${T.t}">${nc}</div>
-        <div style="flex:1">
+        <div class="av" style="background:${T.av};color:${T.avt}">${nc}</div>
+        <div class="ainfo">
           <div class="an">${g('a-name')||'姓名'} ${g('a-role')||''}</div>
           <div class="ar">${g('a-co')||''}</div>
+          <div style="font-size:10px;color:${T.lc};margin-top:3px;background:${T.lb};display:inline-block;padding:2px 8px;border-radius:8px;">LINE: ${g('a-line')||'—'}</div>
         </div>
-        <div class="al" style="background:${T.lb};color:${T.lc}">LINE: ${g('a-line')||'—'}</div>
+        <div class="qr-wrap">
+          <div id="qr-code"></div>
+          <div class="qr-label">掃碼加 LINE</div>
+        </div>
       </div>
-      <div class="disc">＊數據來源：內政部實價登錄系統，僅供參考。如需個別估價歡迎聯絡。</div>
+
+      <div class="disc">＊本報告數據來源為內政部實價登錄系統，成交價已扣除車位，僅供參考。如需個別估價歡迎聯絡。</div>
     </div>
   </div>`;
+
+  setTimeout(genQR,100);
+}
+
+async function exportPDF(){
+  const card=document.getElementById('report-card');
+  if(!card.innerHTML){alert('請先搜尋社區！');return;}
+  try{
+    const canvas=await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#f8f5f0'});
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const imgW=190,imgH=(canvas.height/canvas.width)*imgW;
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',10,10,imgW,imgH);
+    pdf.save(`${g('c-nm')||'行情單'}_${new Date().toLocaleDateString('zh-TW').replace(/\//g,'-')}.pdf`);
+  }catch(e){alert('PDF 匯出失敗，請截圖使用');}
 }
 
 function genLine(){
   const vr=rows.filter(r=>r.l&&r.u);
-  const rL=vr.map(r=>`  ▸ ${r.l}｜${r.s}坪｜${r.u}萬/坪｜總價${r.t}萬`).join('\n');
-  const msg=`📊【${g('c-nm')} 行情快報】\n${g('c-ad')}\n${'─'.repeat(22)}\n✦ 近一年均價：${g('c-av')} 萬/坪\n✦ 近一筆成交：${g('c-ls')} 萬/坪\n✦ 議價空間：約 ${g('c-ng')}%\n${'─'.repeat(22)}\n📋 近期成交明細\n${rL}\n${'─'.repeat(22)}\n💬 ${g('c-an')}\n${'─'.repeat(22)}\n${g('a-name')} ${g('a-role')}\n${g('a-co')}\nLINE：${g('a-line')}\n\n資料僅供參考，有問題歡迎詢問 🙏`;
+  const rL=vr.map(r=>`  ▸ ${r.l}${r.date?' ('+r.date+')':''}｜${r.s}坪｜${r.u}萬/坪｜總價${r.t}萬`).join('\n');
+  const msg=`📊【${g('c-nm')} 行情快報】\n${g('c-ad')}\n${g('c-mr')?'🚇 '+g('c-mr')+'\n':''}`+
+    `${'─'.repeat(22)}\n`+
+    `✦ 近一年均價：${g('c-av')} 萬/坪\n`+
+    `✦ 近一筆成交：${g('c-ls')} 萬/坪\n`+
+    `✦ 歷史最高：${g('c-hi')} 萬/坪\n`+
+    `✦ 議價空間：約 ${g('c-ng')}%\n`+
+    `${'─'.repeat(22)}\n📋 近期成交明細\n${rL}\n`+
+    `${'─'.repeat(22)}\n💬 ${g('c-an')}\n`+
+    `${'─'.repeat(22)}\n`+
+    `${g('a-name')} ${g('a-role')}\n${g('a-co')}\n`+
+    `LINE：${g('a-line')}　加好友：https://line.me/ti/p/~${g('a-line')}\n\n`+
+    `資料僅供參考，有問題歡迎詢問 🙏`;
   const lo=document.getElementById('lo');
   lo.textContent=msg;lo.classList.add('show');
   document.getElementById('copy-btn').classList.add('show');
